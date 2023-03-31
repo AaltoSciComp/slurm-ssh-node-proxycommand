@@ -1,0 +1,34 @@
+#!/bin/sh
+
+JOBID=$(sbatch --output=/dev/null --error=/dev/null -J vscode --wrap="sleep 32000000" --parsable "$@")
+ret=$?
+if [ $ret -ne 0 ];then
+    exit $ret
+fi
+
+trap "{ scancel --quiet $JOBID ; exit ; }" SIGINT SIGTERM EXIT
+
+while true ; do
+    sleep 1
+    state=$(squeue -j $JOBID -O State --noheader)
+    #echo "'$state'" > /dev/stderr
+    case $state in
+	RUNNING*)
+	    #echo "running" > /dev/stderr
+	    break
+	    ;;
+	PENDING*|CONFIGURING*)
+	    #echo "waiting: $state" > /dev/stderr
+	    ;;
+	*)
+	    echo "Failed: unknown job state \"$state\"" > /dev/stderr
+	    exit 1
+	    ;;
+    esac
+done
+
+# Can't exec, since then the job won't be cancelled when done.
+node=$(squeue -j $JOBID -O NodeList --noheader)
+nc $node 22
+# TODO: SLURM_JOB_ID is set in the proxied SSH job, it's hard for us
+# to control that from here.
