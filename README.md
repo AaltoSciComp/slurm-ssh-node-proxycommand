@@ -1,19 +1,22 @@
 # SSH directly to Slurm job allocations via SSH ProxyCommand
 
 Want to SSH directly to a Slurm job on your cluster?  This does that.
-It was designed for use with VSCode as a Remote ssh.
+It was designed for use with the VSCode as a Remote-SSH, but it's a
+broadly applicable tools.
 
 
 ## Remote side
 
-Place `slurm-ssh-node-proxycommand` somewhere that it can be executed.
+Place `slurm-ssh-node-proxycommand` on the cluster somewhere that it
+can be executed.
 
 
 ## User side
 
-Add the following to you ssh config file.  Configure the  Slurm
-resources on the command line of the ProxyCommand.  The path to
-`slurm-ssh-node-proxycommand` must be set.
+Add the following to you ssh config file `.ssh/config`.  Configure the
+Slurm resources you request on the line of the ProxyCommand.  The path
+to `slurm-ssh-node-proxycommand` must be set to match what is on your
+cluster.
 
 ```
 Host YOUR-CLUSTER-SHELL
@@ -23,7 +26,7 @@ Host YOUR-CLUSTER-SHELL
     User YOUR_USER_NAME
 
 # You also need a cluster alias, unless you write the stuff directly
-# in ProxyCommand above:
+# in ProxyCommand line ssh command above:
 
 Host YOUR-CLUSTER
     HostName YOUR-CLUSTER.INSTITUTION.EU
@@ -34,9 +37,12 @@ Host YOUR-CLUSTER
 
 ## Design considerations
 
-- SSH must directly connect from client to the node, since vscode uses
-  `-D`, `-L`, etc. to forward connections there.  Chained ssh:es
-  without ProxyCommand don't work.
+- With VSCode, the ssh connection must go directly to the destination
+  computer, because vscode uses the ssh `-D`, `-L`, etc. to forward
+  connections to the destination node- chained ssh:es without
+  ProxyCommand don't work..  Thus, a possibly simpler `RemoteCommand`
+  in the `.ssh/config` file wont' work (`-D` only gets you to the
+  intermediate host, not the final host)
 
 
 ## Status
@@ -44,9 +50,15 @@ Host YOUR-CLUSTER
 Seem to work but in testing.  Contributions welcome but no warranties
 on it working.
 
-
 * May not work on a Windows client (`/dev/null` in the ssh config file
   - what should this become?)
+* If the ssh connection dies, the background job will be terminated.
+  You will lose your state and not be able to save.
+* If the job dies due to time or memory exceeded, the same as above
+  will happen: your job will die and there is no time to save.
+* Resources are reserved for the whole time you are connected.
+  Disconnect when not in use.
+
 
 
 # See also
