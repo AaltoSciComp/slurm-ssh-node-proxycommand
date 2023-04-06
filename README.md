@@ -55,6 +55,9 @@ on it working.
 * `srun` or `sbatch` may work weird, because `SLURM_JOB_ID` and other
   environment variables are set inside.  Because of the way this is
   set up, it's a bit hard to fix perfectly.  **TODO**
+  * A possible solution: `RequestTTY yes` and `RemoteCommand='unset
+    SLURM_JOB_ID SLURM_JOBID; bash'`, but the interaction with vscode
+    needs testing.
 * If the ssh connection dies, the background job will be terminated.
   You will lose your state and not be able to save.
 * If the job dies due to time or memory exceeded, the same as above
