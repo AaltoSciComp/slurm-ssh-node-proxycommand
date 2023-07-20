@@ -1,6 +1,6 @@
 #!/bin/sh
 
-JOBID=$(sbatch --output=/dev/null --error=/dev/null -J vscode --wrap="sleep 32000000" --parsable "$@")
+JOBID=$(sbatch --output=/dev/null --error=/dev/null -J shell-proxycommand --wrap="sleep 32000000" --parsable "$@")
 ret=$?
 if [ $ret -ne 0 ];then
     exit $ret
