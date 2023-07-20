@@ -39,7 +39,7 @@ Host YOUR-CLUSTER
 
 - With VSCode, the ssh connection must go directly to the destination
   computer, because vscode uses the ssh `-D`, `-L`, etc. to forward
-  connections to the destination node- chained ssh:es without
+  connections to the destination node, and thus chained ssh:es without
   ProxyCommand don't work..  Thus, a possibly simpler `RemoteCommand`
   in the `.ssh/config` file wont' work (`-D` only gets you to the
   intermediate host, not the final host)
