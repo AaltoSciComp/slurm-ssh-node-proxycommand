@@ -27,6 +27,11 @@ while true ; do
     esac
 done
 
+# Sleep some in order to avoid a race condition, where the caller
+# tries to connect to the node before PAM realizes that there are
+# Slurm jobs running on it.  Two seconds seemed to work in one case.
+sleep 2
+
 # Can't exec, since then the job won't be cancelled when done.
 node=$(squeue -j $JOBID -O NodeList --noheader)
 nc $node 22
